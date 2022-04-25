@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
+	"rest-api/internal/user/db"
+	"rest-api/pkg/client/mongodb"
 	"time"
 
 	"rest-api/pkg/logging"
@@ -18,24 +21,35 @@ import (
 )
 
 func main() {
-	//asd := os.Environ()
-	//fmt.Println(asd)
-	//goProjects, exist := os.LookupEnv("GOPROJECTS")
-	//if exist {
-	//	err := os.Chdir(goProjects + "/rest-api")
-	//	if err != nil {
-	//		log.Fatal("Not correct $GOPROJECTS", err)
-	//	}
-	//}
-
-	//curDir, _ := os.Getwd()
-	//fmt.Printf("Current Dir: %s\n", curDir)
 
 	logger := logging.GetLogger()
 	logger.Info("create router")
 	router := httprouter.New()
 
 	cfg := config.GetConfig()
+
+	cfgMongo := cfg.MongoDB
+
+	mongoDBClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host,
+		cfgMongo.Port, cfgMongo.Username, cfgMongo.Password, cfgMongo.Database,
+		cfgMongo.AuthDB)
+	if err != nil {
+		panic(err)
+	}
+	storage := db.NewStorage(mongoDBClient, cfg.MongoDB.Collection, logger)
+
+	user1 := user.User{
+		ID:           "",
+		Email:        "email@example.com",
+		Username:     "Yuriy",
+		PasswordHash: "12345",
+	}
+
+	user1ID, err := storage.Create(context.Background(), user1)
+	if err != nil {
+		panic(err)
+	}
+	logger.Info(user1ID)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)

@@ -14,6 +14,15 @@ type Config struct {
 		BindIP string `yaml:"bind_ip" env-default:"127.0.0.1"`
 		Port   string `yaml:"port" env-default:"8080"`
 	} `yaml:"listen"`
+	MongoDB struct {
+		Host       string `yaml:"host"`
+		Port       string `yaml:"port"`
+		Database   string `yaml:"database"`
+		AuthDB     string `yaml:"auth_db"`
+		Username   string `yaml:"username"`
+		Password   string `yaml:"password"`
+		Collection string `yaml:"collection"`
+	} `yaml:"mongodb"`
 }
 
 const configFile = "config.yml"
@@ -26,16 +35,6 @@ func GetConfig() *Config {
 		logger := logging.GetLogger()
 		logger.Info("read application configuration")
 		instance = &Config{}
-
-		//curDir, _ := os.Getwd()
-		//fmt.Printf("Current Dir: %s\n", curDir)
-
-		// if errr := os.Chdir("../../"); errr != nil {
-		// 	logger.Fatalf("Error: %s\n", errr)
-		// }
-
-		// curDir, _ = os.Getwd()
-		// fmt.Printf("After Change Dir: %s\n", curDir)
 
 		if err := cleanenv.ReadConfig(configFile, instance); err != nil {
 			help, _ := cleanenv.GetDescription(instance, nil)
