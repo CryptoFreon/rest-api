@@ -30,26 +30,15 @@ func main() {
 
 	cfgMongo := cfg.MongoDB
 
-	mongoDBClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host,
-		cfgMongo.Port, cfgMongo.Username, cfgMongo.Password, cfgMongo.Database,
-		cfgMongo.AuthDB)
+	mongoDBClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host, cfgMongo.Port, cfgMongo.Username,
+		cfgMongo.Password, cfgMongo.Database, cfgMongo.AuthDB)
 	if err != nil {
 		panic(err)
 	}
 	storage := db.NewStorage(mongoDBClient, cfg.MongoDB.Collection, logger)
 
-	user1 := user.User{
-		ID:           "",
-		Email:        "email@example.com",
-		Username:     "Yuriy",
-		PasswordHash: "12345",
-	}
-
-	user1ID, err := storage.Create(context.Background(), user1)
-	if err != nil {
-		panic(err)
-	}
-	logger.Info(user1ID)
+	users, err := storage.FindAll(context.Background())
+	fmt.Println(users)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)
