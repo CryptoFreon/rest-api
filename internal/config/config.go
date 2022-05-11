@@ -38,7 +38,7 @@ func GetConfig() *Config {
 
 		if err := cleanenv.ReadConfig(configFile, instance); err != nil {
 			help, _ := cleanenv.GetDescription(instance, nil)
-			logger.Info(help)
+			logger.Info("Error! ", help)
 			logger.Fatal(err)
 		}
 	})
